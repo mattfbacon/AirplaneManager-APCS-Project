@@ -1,16 +1,20 @@
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.EnumSet;
+
 public class AirplaneSeatingSystem {
 	public static void main(String args[]) {
-		ArrayList<String> preferences = new ArrayList<>();
-		preferences.add("window");
-		preferences.add("aisle");
-		AirplaneMenu menu = new AirplaneMenu();
-		Airplane airplane = new Airplane();
-		String result = airplane.findSeats(2, "economy", preferences);
-		System.out.println(result);
-		result = airplane.findSeats(2, "economy", preferences);
-		System.out.println(result);
+		final SeatPreference preferences = SeatPreference.fromEconomyPref(EnumSet.of(EconomySeatPos.WINDOW, EconomySeatPos.AISLE));
+
+		final AirplaneMenu menu = new AirplaneMenu();
+
+		SeatSearchResult result;
+		
+		result = menu.plane.findSeats(2, preferences);
+		result.printResult();
+		if (result.wasSuccessful()) { menu.reserveSeats((SuccessfulSeatSearch)result); }
+
+		result = menu.plane.findSeats(2, preferences);
+		result.printResult();
+
 		menu.printPlane();
 	}
 }

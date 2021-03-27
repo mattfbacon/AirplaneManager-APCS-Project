@@ -1,9 +1,16 @@
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class AirplaneMenu {
+	protected final Iterable<Character> letters = () -> IntStream.rangeClosed('a', 'z').mapToObj(var -> (char) var).iterator();
 
-	public ArrayList<String> preferences = new ArrayList<String>();
+	public SeatPreference preference;
 	public int numberOfPeople = 0;
 	public Airplane plane = new Airplane();
 	public String type = "economy";
@@ -41,77 +48,85 @@ public class AirplaneMenu {
 		}
 	}
 
+	private String seatSideToString(SeatRow side, String seatDelimiter, boolean reversed) {
+		List<String> seats = Arrays.stream(side.row).map((SeatState seat) -> seat.repr).collect(Collectors.toList());
+		if (reversed) Collections.reverse(seats);
+		return seats.stream().collect(Collectors.joining(seatDelimiter));
+	}
+
+	private String seatRowToString(SeatRow[] row, String sidesDelimiter, String seatDelimiter) {
+		return seatSideToString(row[0], seatDelimiter, false) + sidesDelimiter + seatSideToString(row[1], seatDelimiter, true); // reverse the right side so that aisle comes first
+	}
+
 	public void printPlane() {
-		SeatRow[] first_class = plane.getFirstClass();
-		SeatRow[] economy_class = plane.getEconomyClass();
-
-		char[] first = new char[21];
-		char[] economy = new char[91];
+		final Stream<String> firstClassSeats = Arrays.stream(plane.getFirstClass()).map((SeatRow[] row) -> seatRowToString(row, "||", " "));
+		final Stream<String> economySeats = Arrays.stream(plane.getEconomyClass()).map((SeatRow[] row) -> seatRowToString(row, "||", ""));
 		
-		int n1 = 0;
-		int n2 = 0;
+		final int fuselagePadding = 76;
+		final Stream<String> planeHeader = Stream.of(
+			"    __",
+			"   /  \\" ,
+			"  /    \\",
+			" |      |",
+			"| First  |",
+			"|1 2  3 4|"
+		).map((String row) -> " ".repeat(fuselagePadding) + row);
+		final Stream<String> firstClassSection = firstClassSeats.map((String row) -> " ".repeat(fuselagePadding) + "|" + row + "|");
+		final Stream<String> economyHeader = Stream.of(
+			"|  Econ  |",
+			"|123  456|"
+		).map((String row) -> " ".repeat(fuselagePadding) + row);
+		final Iterator<Character> letterIterator = letters.iterator();
+		final int wingPadding = 8;
+		final String[] wingSection = {
+			"                                                                    ",
+			"                                                               __---",
+			"                                                 ___------------    ",
+			"                                    ___------------                 ",
+			"                        _____------                                 ",
+			"               ______---                                            ",
+			"       _______-                                                     ",
+			"      /                                                             ",
+			"   __=                                                              ",
+			"  /                 =======================================         ",
+			" |            ==========                                   ====     ",
+			"/       =======                                                 ====",
+			"/======                                                             ",
+			"                                                                    ",
+			"                                                                    "
+		};
+		final Iterator<String> leftWing = Arrays.stream(wingSection).map((String row) -> " ".repeat(wingPadding) + row.substring(0, row.length() - 1)).iterator();
+		final Iterator<String> rightWing = Arrays.stream(wingSection).map((String row) -> new StringBuilder(row).reverse().toString()).iterator();
+		final Stream<String> economySection = economySeats.map((String row) ->
+			leftWing.next()
+			+ letterIterator.next()
+			+ "|" + row + "|"
+			+ rightWing.next());
+		final int tailPadding = 54;
+		final Stream<String> tailSection = Stream.of(
+			"                      |        |",
+			"                      |---  ---|",
+			"               ____---|  |  |  |---____",
+			"    _____------       |---  ---|       ------_____",
+			"   |                  |        |                  |",
+			"  |                   |        |                   |",
+			" /    ________________|        |________________    \\",
+			"|________|            \\________/           |________|"
+		).map((String row) -> " ".repeat(tailPadding) + row);
 
-		for (int x = 0; x < 5; x++) {
-			for (int i = 0; i < 4; i++) {
-				if (first_class[x].row[i] == SeatState.EMPTY) {
-					first[n1] = 'x';
-					n1++;
-				}
-				else {
-					first[n1] = 'o';
-					n1++;
-				}
-			}
-		}
-		for (int x = 0; x < 15; x++) {
-			for (int i = 0; i < 6; i++) {
-				if (economy_class[x].row[i] == SeatState.EMPTY) {
-					economy[n2] = 'x';
-					n2++;
-				} else {
-					economy[n2] = 'o';
-					n2++;
-				}
-			}
-		}
-		String planeType =
-		"                                                                                __\n"  +
-		"                                                                               /  \\" + "\n" +
-		"                                                                              /    \\" + "\n" +
-		"                                                                             |      |\n " +
-		"                                                                            | First |\n" +
-		"                                                                            |1 2  3 4|\n" +
-		"                                                                           a|" + first[0] + " " + first[1] + "||" + first[2] + " " + first[3] + "|\n" +
-		"                                                                           b|" + first[4] + " " + first[5] + "||" + first[6] + " " + first[7] + "|\n" +
-		"                                                                           c|" + first[8] + " " + first[9] + "||" + first[10] + " " + first[11] + "|\n" +
-		"                                                                           d|" + first[12] + " " + first[13] + "||" + first[14] + " " + first[15] + "|\n" +
-		"                                                                           e|" + first[16] + " " + first[17] + "||" + first[18] + " " + first[19] + "|\n" +
-		"                                                                            |  Econ  |\n" +
-		"                                                                            |123  456|\n" +
-		"                                                                           a|"+economy[] + economy[] + economy[] + "||ooo|\n" +
-		"                                                                       __--b|"+ooo||ooo|---__\n" +
-		"                                                         ___------------   c|"+ooo||ooo|   ------------___\n" +
-		"                                            ___------------                d|"+ooo||ooo|                  ------------___\n" +
-		"                                _____------                                e|"+ooo||ooo|                                  ------_____\n" +
-		"                       ______---                                           f|"+ooo||ooo|                                             ---______\n" +
-		"               _______-                                                    g|"+ooo||ooo|                                                     -_______\n" +
-		"              /                                                            h|"+ooo||ooo|                                                             \\" + "\n" +
-		"           __=                                                             i|"+ooo||ooo|                                                              =__\n" +
-		"          /                 =======================================        i|"+ooo||ooo|         =======================================                  \\" + "\n" +
-		"         |            ==========                                   ====    j|"+ooo||ooo|     ====                                   ==========             |\n" +
-		"        /       =======                                                 ===k|"+ooo||ooo|====                                                  =======       \\" + "\n" +
-		"        /======                                                            l|"+ooo||ooo|                                                               ======\\" + "\n" +
-		"                                                                           m|"+ooo||ooo|\n" +
-		"                                                                           n|"+ooo||ooo|\n" +
-		"                                                                            |        |\n" +
-		"                                                                            |---  ---|\n"  +
-		"                                                                     ____---|  |  |  |---____\n" +
-		"                                                          _____------       |---  ---|       ------_____\n" +
-		"                                                         |                  |        |                  |\n" +
-		"                                                        |                   |        |                   |\n" +
-		"                                                      /    ________________|        |________________    \\" + "\n" +
-		"                                                     |________|            \\________/           |________|";
+		Stream.of(planeHeader, firstClassSection, economyHeader, economySection, tailSection)
+			.flatMap(i -> i).forEach(System.out::println);
+	}
 
-		System.out.println(planeType);
+	public void reserveSeats(SuccessfulSeatSearch seats) {
+		switch(seats.type) {
+			case ECONOMY:
+				
+				break;
+			case FIRST_CLASS:
+				break;
+			default:
+				return; // never
+		}
 	}
 }

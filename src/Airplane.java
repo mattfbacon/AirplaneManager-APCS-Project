@@ -1,302 +1,65 @@
-import java.util.ArrayList;
-
-class EconomyRow extends SeatRow {
-	public EconomyRow() {
-		super(6);
-	}
-}
-
-class FirstClassRow extends SeatRow {
-	public FirstClassRow() {
-		super(4);
-	}
-}
+import java.util.HashSet;
+import java.util.Set;
 
 public class Airplane {
-	private FirstClassRow[] first_class = new FirstClassRow[5];
-	private EconomyRow[] economy_class = new EconomyRow[15];
+
+	private SeatRow[][] firstClass = new SeatRow[5][2];
+	private SeatRow[][] economy = new SeatRow[15][2];
 
 	public Airplane() {
-		// empty?
-	}
-
-	public SeatRow[] getFirstClass() {
-		return first_class;
-	}
-
-	public SeatRow[] getEconomyClass() {
-		return economy_class;
-	}
-
-	public String findSeats(int amountOfPeople, String type, ArrayList<String> preferences) {
-		if (type == "economy") {
-			if (amountOfPeople > 3) {
-				return "Too many people!";
+		for (int row = 0; row < firstClass.length; row++) {
+			for (int side = 0; side < firstClass[row].length; side++) {
+				firstClass[row][side] = new SeatRow(2);
 			}
-
-			for (int x = 0; x < 15; x++) {
-				SeatRow cur = economy_class[x];
-				// check left side
-				int amountAvailable = 0;
-				for (int y = 0; y < 3; y++) {
-					if (cur.row[y] == SeatState.EMPTY) {
-						amountAvailable += 1;
-					}
-				}
-				if (amountAvailable >= amountOfPeople) {
-					// we got enough seats
-					if (checkPreferencesEconomy("left", preferences, cur)) {
-						// all preferences fullfilled, lets give them the seats
-						ArrayList<Integer> seats = getSeatsEconomy("left", preferences, cur, amountOfPeople);
-						String answer = "Economy class seats\n";
-						for (int seat : seats) {
-							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.fillSeat(x);
-						}
-						return answer;
-					}
-				}
-				// check right side
-				amountAvailable = 0;
-				for (int y = 3; y < 6; y++) {
-					if (cur.row[y] == SeatState.EMPTY) {
-						amountAvailable += 1;
-					}
-				}
-				if (amountAvailable >= amountOfPeople) {
-					// we got enough seats
-					if (checkPreferencesEconomy("right", preferences, cur)) {
-						// all preferences fullfilled, lets give them the seats
-						ArrayList<Integer> seats = getSeatsEconomy("right", preferences, cur, amountOfPeople);
-						String answer = "Economy class seats\n";
-						for (int seat : seats) {
-							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.fillSeat(x);
-						}
-						return answer;
-					}
-				}
+		}
+		for (int row = 0; row < economy.length; row++) {
+			for (int side = 0; side < economy[row].length; side++) {
+				economy[row][side] = new SeatRow(3);
 			}
-			return "Your preferences cannot be fulfilled";
-		} else {
-			if (amountOfPeople > 4) {
-				return "Too many people!";
-			}
-			for (int x = 0; x < 5; x++) {
-				SeatRow cur = first_class[x];
-				// check left side
-				int amountAvailable = 0;
-				for (int y = 0; y < 2; y++) {
-					if (cur.row[y] == SeatState.EMPTY) {
-						amountAvailable += 1;
-					}
-				}
-				if (amountAvailable >= amountOfPeople) {
-					// we got enough seats
-					if (checkPreferencesFirst("left", preferences, cur)) {
-						// all preferences fullfilled, lets give them the seats
-						ArrayList<Integer> seats = getSeatsFirst("left", preferences, cur, amountOfPeople);
-						String answer = "First class seats\n";
-						for (int seat : seats) {
-							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.fillSeat(x);
-						}
-						return answer;
-					}
-				}
-				// check right side
-				amountAvailable = 0;
-				for (int y = 2; y < 4; y++) {
-					if (cur.row[y] == SeatState.EMPTY) {
-						amountAvailable += 1;
-					}
-				}
-				if (amountAvailable >= amountOfPeople) {
-					// we got enough seats
-					if (checkPreferencesFirst("right", preferences, cur)) {
-						// all preferences fullfilled, lets give them the seats
-						ArrayList<Integer> seats = getSeatsFirst("right", preferences, cur, amountOfPeople);
-						String answer = "First class seats\n";
-						for (int seat : seats) {
-							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.fillSeat(x);
-						}
-						return answer;
-					}
-				}
-			}
-			return "Your preferences cannot be fulfilled. Either reduce number of people or change your preferences.";
 		}
 	}
 
-	public boolean checkPreferencesEconomy(String side, ArrayList<String> preferences, SeatRow cur) {
-		if (side == "left") {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					if (cur.row[2] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "center") {
-					if (cur.row[1] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "window") {
-					if (cur.row[0] == SeatState.FULL) {
-						return false;
-					}
-				}
-			}
-		} else {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					if (cur.row[3] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "center") {
-					if (cur.row[4] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "window") {
-					if (cur.row[5] == SeatState.FULL) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+	public SeatState getEconomySeatState(int row, SeatSide side, EconomySeatPos pos) {
+		return economy[row][side.index].row[pos.getPosition()];
 	}
 
-	public ArrayList<Integer> getSeatsEconomy(String side, ArrayList<String> preferences, SeatRow cur,
-			int amountOfPeople) {
-		ArrayList<Integer> seats = new ArrayList<Integer>();
-
-		if (side == "left") {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					seats.add(2);
-					amountOfPeople -= 1;
-				} else if (preference == "center") {
-					seats.add(1);
-					amountOfPeople -= 1;
-				} else if (preference == "window") {
-					seats.add(0);
-					amountOfPeople -= 1;
-				}
-			}
-			// fill in the non preference seats
-
-			for (int x = 0; x < 3; x++) {
-				if (amountOfPeople == 0) {
-					return seats;
-				}
-				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
-					seats.add(x);
-					amountOfPeople -= 1;
-				}
-			}
-		} else {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					seats.add(3);
-					amountOfPeople -= 1;
-				} else if (preference == "center") {
-					seats.add(4);
-					amountOfPeople -= 1;
-				} else if (preference == "window") {
-					seats.add(5);
-					amountOfPeople -= 1;
-				}
-			}
-			// fill in the non preference seats
-
-			for (int x = 3; x < 6; x++) {
-				if (amountOfPeople == 0) {
-					return seats;
-				}
-				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
-					seats.add(x);
-					amountOfPeople -= 1;
-				}
-			}
-		}
-		return seats;
+	public SeatState getFirstClassSeatState(int row, SeatSide side, FirstClassSeatPos pos) {
+		return firstClass[row][side.index].row[pos.getPosition()];
 	}
 
-	public boolean checkPreferencesFirst(String side, ArrayList<String> preferences, SeatRow cur) {
-		if (side == "left") {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					if (cur.row[1] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "window") {
-					if (cur.row[0] == SeatState.FULL) {
-						return false;
-					}
-				}
-			}
-		} else {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					if (cur.row[2] == SeatState.FULL) {
-						return false;
-					}
-				} else if (preference == "window") {
-					if (cur.row[3] == SeatState.FULL) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+	public SeatRow[][] getFirstClass() {
+		return firstClass;
 	}
 
-	public ArrayList<Integer> getSeatsFirst(String side, ArrayList<String> preferences, SeatRow cur, int amountOfPeople) {
-		ArrayList<Integer> seats = new ArrayList<Integer>();
+	public SeatRow[][] getEconomyClass() {
+		return economy;
+	}
 
-		if (side == "left") {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					seats.add(1);
-					amountOfPeople -= 1;
-				} else if (preference == "window") {
-					seats.add(0);
-					amountOfPeople -= 1;
-				}
-			}
-			// fill in the non preference seats
-
-			for (int x = 0; x < 2; x++) {
-				if (amountOfPeople == 0) {
-					return seats;
-				}
-				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
-					seats.add(x);
-					amountOfPeople -= 1;
-				}
-			}
-		} else {
-			for (String preference : preferences) {
-				if (preference == "aisle") {
-					seats.add(2);
-					amountOfPeople -= 1;
-				} else if (preference == "window") {
-					seats.add(3);
-					amountOfPeople -= 1;
-				}
-			}
-			// fill in the non preference seats
-
-			for (int x = 2; x < 4; x++) {
-				if (amountOfPeople == 0) {
-					return seats;
-				}
-				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
-					seats.add(x);
-					amountOfPeople -= 1;
-				}
+	private SeatSearchResult findSeats(SeatRow[][] seatingArea, int amountOfPeople, Set<Integer> preferences, SeatType type) {
+		if (amountOfPeople > seatingArea[0][0].row.length) return FailedSeatSearch.TOO_MANY_PEOPLE;
+		for (int rowNum = 0; rowNum < seatingArea.length; rowNum++) {
+			final SeatRow[] row = seatingArea[rowNum];
+			for (SeatSide sideName : SeatSide.values()) {
+				final SeatRow side = row[sideName.index];
+				if (side.availableSeats().count() < amountOfPeople) { continue; } // not enough free seats in this row
+				if (!preferences.stream().allMatch(pref -> side.row[pref] == SeatState.EMPTY)) { continue; } // preferences don't match in this row
+				return new SuccessfulSeatSearch(rowNum, sideName, preferences, type);
 			}
 		}
-		return seats;
+		return FailedSeatSearch.NO_SUCH_SEATS;
+	}
+
+	public<E extends Enum<E> & SeatPos> SeatSearchResult findSeats(int amountOfPeople, SeatPreference preferences) {
+		Set<Integer> preferredPositions = new HashSet<>();
+		switch (preferences.getType()) {
+			case ECONOMY:
+				preferences.economyPreference.stream().forEach((SeatPos pos) -> preferredPositions.add(pos.getPosition()));
+				return findSeats(economy, amountOfPeople, preferredPositions, SeatType.ECONOMY);
+			case FIRST_CLASS:
+				preferences.firstClassPreference.stream().forEach((SeatPos pos) -> preferredPositions.add(pos.getPosition()));
+				return findSeats(firstClass, amountOfPeople, preferredPositions, SeatType.FIRST_CLASS);
+			default:
+				return null; // should never happen
+		}
 	}
 }
