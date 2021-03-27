@@ -1,16 +1,23 @@
 import java.util.ArrayList;
 
+class EconomyRow extends SeatRow {
+	public EconomyRow() {
+		super(6);
+	}
+}
+
+class FirstClassRow extends SeatRow {
+	public FirstClassRow() {
+		super(4);
+	}
+}
+
 public class Airplane {
-	private SeatRow[] first_class = new SeatRow[5];
-	private SeatRow[] economy_class = new SeatRow[15];
+	private EconomyRow[] first_class = new EconomyRow[5];
+	private FirstClassRow[] economy_class = new FirstClassRow[15];
 
 	public Airplane() {
-		for (int x = 0; x < 15; x++) {
-			economy_class[x] = new SeatRow(6);
-		}
-		for (int x = 0; x < 5; x++) {
-			first_class[x] = new SeatRow(4);
-		}
+		// empty?
 	}
 
 	public SeatRow[] getFirstClass() {
