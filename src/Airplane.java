@@ -13,8 +13,8 @@ class FirstClassRow extends SeatRow {
 }
 
 public class Airplane {
-	private EconomyRow[] first_class = new EconomyRow[5];
-	private FirstClassRow[] economy_class = new FirstClassRow[15];
+	private FirstClassRow[] first_class = new FirstClassRow[5];
+	private EconomyRow[] economy_class = new EconomyRow[15];
 
 	public Airplane() {
 		// empty?
