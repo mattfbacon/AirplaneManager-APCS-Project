@@ -53,7 +53,7 @@ public class AirplaneMenu {
 
 		for (int x = 0; x < 5; x++) {
 			for (int i = 0; i < 4; i++) {
-				if (first_class[x].getSeat(i)) {
+				if (first_class[x].row[i] == SeatState.EMPTY) {
 					first[n1] = 'x';
 					n1++;
 				}
@@ -65,7 +65,7 @@ public class AirplaneMenu {
 		}
 		for (int x = 0; x < 15; x++) {
 			for (int i = 0; i < 6; i++) {
-				if (economy_class[x].getSeat(i)) {
+				if (economy_class[x].row[i] == SeatState.EMPTY) {
 					economy[n2] = 'x';
 					n2++;
 				} else {

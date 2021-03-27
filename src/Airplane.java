@@ -39,7 +39,7 @@ public class Airplane {
 				// check left side
 				int amountAvailable = 0;
 				for (int y = 0; y < 3; y++) {
-					if (cur.getSeat(y)) {
+					if (cur.row[y] == SeatState.EMPTY) {
 						amountAvailable += 1;
 					}
 				}
@@ -51,7 +51,7 @@ public class Airplane {
 						String answer = "Economy class seats\n";
 						for (int seat : seats) {
 							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.setPerson(x);
+							cur.fillSeat(x);
 						}
 						return answer;
 					}
@@ -59,7 +59,7 @@ public class Airplane {
 				// check right side
 				amountAvailable = 0;
 				for (int y = 3; y < 6; y++) {
-					if (cur.getSeat(y)) {
+					if (cur.row[y] == SeatState.EMPTY) {
 						amountAvailable += 1;
 					}
 				}
@@ -71,7 +71,7 @@ public class Airplane {
 						String answer = "Economy class seats\n";
 						for (int seat : seats) {
 							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.setPerson(x);
+							cur.fillSeat(x);
 						}
 						return answer;
 					}
@@ -87,7 +87,7 @@ public class Airplane {
 				// check left side
 				int amountAvailable = 0;
 				for (int y = 0; y < 2; y++) {
-					if (cur.getSeat(y)) {
+					if (cur.row[y] == SeatState.EMPTY) {
 						amountAvailable += 1;
 					}
 				}
@@ -99,7 +99,7 @@ public class Airplane {
 						String answer = "First class seats\n";
 						for (int seat : seats) {
 							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.setPerson(x);
+							cur.fillSeat(x);
 						}
 						return answer;
 					}
@@ -107,7 +107,7 @@ public class Airplane {
 				// check right side
 				amountAvailable = 0;
 				for (int y = 2; y < 4; y++) {
-					if (cur.getSeat(y)) {
+					if (cur.row[y] == SeatState.EMPTY) {
 						amountAvailable += 1;
 					}
 				}
@@ -119,7 +119,7 @@ public class Airplane {
 						String answer = "First class seats\n";
 						for (int seat : seats) {
 							answer += "Seat at row " + (x + 1) + " and collumn " + (seat + 1) + "\n";
-							cur.setPerson(x);
+							cur.fillSeat(x);
 						}
 						return answer;
 					}
@@ -130,19 +130,18 @@ public class Airplane {
 	}
 
 	public boolean checkPreferencesEconomy(String side, ArrayList<String> preferences, SeatRow cur) {
-		ArrayList<Integer> availableSeats = cur.getSeats();
 		if (side == "left") {
 			for (String preference : preferences) {
 				if (preference == "aisle") {
-					if (!availableSeats.contains(2)) {
+					if (cur.row[2] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "center") {
-					if (!availableSeats.contains(1)) {
+					if (cur.row[1] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "window") {
-					if (!availableSeats.contains(0)) {
+					if (cur.row[0] == SeatState.FULL) {
 						return false;
 					}
 				}
@@ -150,15 +149,15 @@ public class Airplane {
 		} else {
 			for (String preference : preferences) {
 				if (preference == "aisle") {
-					if (!availableSeats.contains(3)) {
+					if (cur.row[3] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "center") {
-					if (!availableSeats.contains(4)) {
+					if (cur.row[4] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "window") {
-					if (!availableSeats.contains(5)) {
+					if (cur.row[5] == SeatState.FULL) {
 						return false;
 					}
 				}
@@ -190,7 +189,7 @@ public class Airplane {
 				if (amountOfPeople == 0) {
 					return seats;
 				}
-				if (!seats.contains(x) && cur.getSeat(x)) {
+				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
 					seats.add(x);
 					amountOfPeople -= 1;
 				}
@@ -214,7 +213,7 @@ public class Airplane {
 				if (amountOfPeople == 0) {
 					return seats;
 				}
-				if (!seats.contains(x) && cur.getSeat(x)) {
+				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
 					seats.add(x);
 					amountOfPeople -= 1;
 				}
@@ -224,15 +223,14 @@ public class Airplane {
 	}
 
 	public boolean checkPreferencesFirst(String side, ArrayList<String> preferences, SeatRow cur) {
-		ArrayList<Integer> availableSeats = cur.getSeats();
 		if (side == "left") {
 			for (String preference : preferences) {
 				if (preference == "aisle") {
-					if (!availableSeats.contains(1)) {
+					if (cur.row[1] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "window") {
-					if (!availableSeats.contains(0)) {
+					if (cur.row[0] == SeatState.FULL) {
 						return false;
 					}
 				}
@@ -240,11 +238,11 @@ public class Airplane {
 		} else {
 			for (String preference : preferences) {
 				if (preference == "aisle") {
-					if (!availableSeats.contains(2)) {
+					if (cur.row[2] == SeatState.FULL) {
 						return false;
 					}
 				} else if (preference == "window") {
-					if (!availableSeats.contains(3)) {
+					if (cur.row[3] == SeatState.FULL) {
 						return false;
 					}
 				}
@@ -272,7 +270,7 @@ public class Airplane {
 				if (amountOfPeople == 0) {
 					return seats;
 				}
-				if (!seats.contains(x) && cur.getSeat(x)) {
+				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
 					seats.add(x);
 					amountOfPeople -= 1;
 				}
@@ -293,7 +291,7 @@ public class Airplane {
 				if (amountOfPeople == 0) {
 					return seats;
 				}
-				if (!seats.contains(x) && cur.getSeat(x)) {
+				if (!seats.contains(x) && cur.row[x] == SeatState.EMPTY) {
 					seats.add(x);
 					amountOfPeople -= 1;
 				}
